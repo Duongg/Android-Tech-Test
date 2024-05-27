@@ -15,7 +15,8 @@ abstract class MovieViewModel<STATE: MovieState>(
     val viewState: STATE get() = _viewState.value
     private val _viewState = mutableStateOf(defaultState)
 
-    abstract val _viewStateCopy: STATE
+    abstract val viewStateCopy: STATE
+
 
     protected fun <T> launch(
         dispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -24,5 +25,8 @@ abstract class MovieViewModel<STATE: MovieState>(
         return viewModelScope.launch(dispatcher){
             block()
         }
+    }
+    fun reduce(block: STATE.() -> Unit){
+        _viewState.value = viewStateCopy.apply(block)
     }
 }

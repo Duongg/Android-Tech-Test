@@ -11,7 +11,6 @@ class TokenHeaderInterceptor @Inject constructor(): Interceptor {
         var request = chain.request()
         request = request.newBuilder()
             .addHeader("accept", "application/json")
-            .addHeader("Authorization", "Bearer 47aa75b56464da7a186b813a50035cd4")
             .build()
         return chain.proceed(request)
     }
