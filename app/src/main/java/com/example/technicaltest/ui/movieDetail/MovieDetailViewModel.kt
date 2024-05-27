@@ -2,6 +2,7 @@ package com.example.technicaltest.ui.movieDetail
 
 import android.util.Log
 import com.example.domain.MovieRepository
+import com.example.domain.entity.MovieDetailEntity
 import com.example.technicaltest.core.MovieViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -15,6 +16,7 @@ class MovieDetailViewModel@Inject constructor(
     fun onUiEvent(uiEvent: MovieDetailViewUiEvent){
         when(uiEvent){
             is MovieDetailViewUiEvent.OnMovieDetailLoaded -> handleMovieDetailLoaded(uiEvent)
+            else -> {}
         }
     }
 
@@ -26,6 +28,7 @@ class MovieDetailViewModel@Inject constructor(
             .onSuccess { response ->
                 reduce {
                     result = response.toModel()
+                    insertMovieDetail(response)
                 }
                 Log.d("---TAG----","Movie Detail Success")
             }
@@ -35,5 +38,9 @@ class MovieDetailViewModel@Inject constructor(
         reduce {
             requestInProgress = false
         }
+    }
+
+    private fun insertMovieDetail(movieDetailEntity: MovieDetailEntity) = launch{
+       // movieRepository.insertMovieDetail(movieDetailEntity)
     }
 }

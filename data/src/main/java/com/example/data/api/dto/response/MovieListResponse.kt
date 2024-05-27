@@ -26,3 +26,9 @@ data class MovieItemResponse (
     @SerializedName("vote_count"        ) var voteCount        : Int?           = null
 
 )
+
+data class ErrorResponse(
+    @SerializedName("status_code"    ) var statusCode    : Int?     = null,
+    @SerializedName("status_message" ) var statusMessage : String?  = null,
+    @SerializedName("success"        ) var success       : Boolean? = null
+)
