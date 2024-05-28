@@ -28,11 +28,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,11 +50,23 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.technicaltest.IMAGE_URL
 import com.example.technicaltest.R
+import com.example.technicaltest.TAG_MOVIE_DETAIL_BUDGET
+import com.example.technicaltest.TAG_MOVIE_DETAIL_DATE
+import com.example.technicaltest.TAG_MOVIE_DETAIL_IMAGE
+import com.example.technicaltest.TAG_MOVIE_DETAIL_OVERVIEW
+import com.example.technicaltest.TAG_MOVIE_DETAIL_POPULARITY
+import com.example.technicaltest.TAG_MOVIE_DETAIL_PRODUCTION_COUNTRY
+import com.example.technicaltest.TAG_MOVIE_DETAIL_STATUS
+import com.example.technicaltest.TAG_MOVIE_DETAIL_TITLE
+import com.example.technicaltest.TAG_MOVIE_DETAIL_VOTE
+import com.example.technicaltest.TAG_MOVIE_DETAIL_VOTE_AVERAGE
+import com.example.technicaltest.TAG_MOVIE_TITLE_DETAIL
 import com.example.technicaltest.numberFormat
 import com.example.technicaltest.ui.ErrorDialog
 import com.example.technicaltest.ui.movieList.LoadingIndicator
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MovieDetailView(navController: NavController, id: Int) {
     val viewModel: MovieDetailViewModel = hiltViewModel()
@@ -63,6 +80,7 @@ fun MovieDetailView(navController: NavController, id: Int) {
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(0xFFFFFFFF))
+            .semantics { testTagsAsResourceId = true }
     ) {
         TopBar(navController)
         Spacer(modifier = Modifier.size(8.dp))
@@ -77,13 +95,14 @@ fun MovieDetailView(navController: NavController, id: Int) {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TopBar(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = Color(0xFFE11F27))
-            .padding(16.dp),
+            .padding(16.dp).semantics { testTag = TAG_MOVIE_TITLE_DETAIL },
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -132,7 +151,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?) {
                 val context = LocalContext.current
                 AsyncImage(
                     modifier = Modifier
-                        .size(128.dp, 128.dp),
+                        .size(128.dp, 128.dp).semantics { testTag = TAG_MOVIE_DETAIL_IMAGE },
                     model = IMAGE_URL + movieDetailModel?.posterPath,
                     contentDescription = "",
                 )
@@ -149,7 +168,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?) {
                             } catch (e: ActivityNotFoundException) {
                                 Log.d("ERROR", "Can not open home page")
                             }
-                        },
+                        } .semantics { testTag = TAG_MOVIE_DETAIL_TITLE } ,
                         text = stringResource(id = R.string.movie_title_item) + movieDetailModel?.originTitle,
                         style = TextStyle(
                             fontSize = 18.sp,
@@ -164,6 +183,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?) {
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
+                            modifier = Modifier.semantics { testTag = TAG_MOVIE_DETAIL_DATE},
                             text = stringResource(id = R.string.movie_release_date) + movieDetailModel?.releaseDate + " | ",
                             style = TextStyle(
                                 fontSize = 12.sp,
@@ -192,6 +212,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
+                            modifier = Modifier.semantics { testTag = TAG_MOVIE_DETAIL_VOTE_AVERAGE},
                             text = stringResource(id = R.string.movie_vote_average) + movieDetailModel?.voteAverage.toString() + " | ",
                             style = TextStyle(
                                 fontSize = 12.sp,
@@ -200,6 +221,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?) {
                             )
                         )
                         Text(
+                            modifier = Modifier.semantics { testTag = TAG_MOVIE_DETAIL_STATUS },
                             text = stringResource(id = R.string.movie_status) + movieDetailModel?.status.toString() + " | ",
                             style = TextStyle(
                                 fontSize = 12.sp,
@@ -218,6 +240,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?) {
                     }
                     Spacer(modifier = Modifier.size(4.dp))
                     Text(
+                        modifier = Modifier.semantics { testTag = TAG_MOVIE_DETAIL_BUDGET },
                         text = stringResource(id = R.string.movie_budget) + numberFormat(
                             movieDetailModel?.budget ?: 0
                         ) + stringResource(
@@ -235,6 +258,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
+                            modifier = Modifier.semantics { testTag = TAG_MOVIE_DETAIL_VOTE },
                             text = stringResource(id = R.string.movie_vote) + movieDetailModel?.voteCount.toString() + " | ",
                             style = TextStyle(
                                 fontSize = 12.sp,
@@ -243,6 +267,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?) {
                             )
                         )
                         Text(
+                            modifier = Modifier.semantics { testTag = TAG_MOVIE_DETAIL_POPULARITY },
                             text = stringResource(id = R.string.movie_popularity) + movieDetailModel?.popularity.toString(),
                             style = TextStyle(
                                 fontSize = 12.sp,
@@ -266,6 +291,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?) {
                 .fillMaxWidth()
         ) {
             Text(
+                modifier = Modifier.semantics { testTag = TAG_MOVIE_DETAIL_OVERVIEW },
                 text = stringResource(id = R.string.overview),
                 style = TextStyle(
                     fontSize = 14.sp,
@@ -298,7 +324,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?) {
             HorizontalPager(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .animateContentSize(),
+                    .animateContentSize().semantics { testTag = TAG_MOVIE_DETAIL_PRODUCTION_COUNTRY },
                 state = pagerState,
                 userScrollEnabled = true,
             ) {

@@ -29,9 +29,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,11 +50,23 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.technicaltest.IMAGE_URL
 import com.example.technicaltest.R
+import com.example.technicaltest.TAG_ITEM_IMAGE
+import com.example.technicaltest.TAG_ITEM_MOVIE
+import com.example.technicaltest.TAG_ITEM_RELEASE_DATE
+import com.example.technicaltest.TAG_ITEM_TITLE
+import com.example.technicaltest.TAG_ITEM_VOTE_AVER
+import com.example.technicaltest.TAG_LIST_HEADER
+import com.example.technicaltest.TAG_LIST_ITEM
+import com.example.technicaltest.TAG_LOADING
+import com.example.technicaltest.TAG_MOVIE_TITLE_LIST
+import com.example.technicaltest.TAG_SEARCH_BUTTON
+import com.example.technicaltest.TAG_SEARCH_FIELD
 import com.example.technicaltest.navigation.MovieRoutes
 import com.example.technicaltest.ui.ErrorDialog
 import com.example.technicaltest.ui.theme.TechnicalTestTheme
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MovieListView(navController: NavController, viewModel: MoviesListViewModel = hiltViewModel()) {
     val viewState = viewModel.viewState
@@ -64,6 +80,7 @@ fun MovieListView(navController: NavController, viewModel: MoviesListViewModel =
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(0xFFFFFFFF))
+            .semantics { testTagsAsResourceId = true }
     ) {
         TopBar()
         SearchBox(
@@ -79,11 +96,12 @@ fun MovieListView(navController: NavController, viewModel: MoviesListViewModel =
                 }
             }
         )
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().semantics { testTagsAsResourceId = true }) {
             Row(
                 modifier = Modifier
                     .padding(16.dp, 0.dp, 0.dp, 0.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .semantics { testTag = TAG_LIST_HEADER },
                 horizontalArrangement = Arrangement.Start,
             ) {
                 Text(
@@ -126,6 +144,7 @@ fun TopBar() {
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
+            modifier = Modifier.semantics { testTag = TAG_MOVIE_TITLE_LIST},
             text = stringResource(id = R.string.movie_title_list),
             textAlign = TextAlign.Center,
             style = TextStyle(
@@ -152,7 +171,8 @@ fun SearchBox(
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(2f),
+                .weight(2f)
+                .semantics { testTag = TAG_SEARCH_FIELD },
             textStyle = TextStyle(fontSize = 16.sp),
             value = viewState.searchInput.orEmpty(),
             onValueChange = { onSearchChanged?.invoke(it) },
@@ -168,7 +188,8 @@ fun SearchBox(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .weight(1f),
+                .weight(1f)
+                .semantics { testTag = TAG_SEARCH_BUTTON },
             onClick = {
                 onSearchButtonClicked?.invoke(viewState.searchInput.orEmpty())
             },
@@ -195,7 +216,8 @@ fun ResultView(
             .background(Color.White)
             .fillMaxHeight()
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .semantics { testTag = TAG_LIST_ITEM },
         state = listState,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -230,6 +252,7 @@ fun NoResultView() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoadingIndicator(isInProgress: Boolean) {
     if (!isInProgress) {
@@ -239,12 +262,12 @@ fun LoadingIndicator(isInProgress: Boolean) {
         onDismissRequest = {},
         DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
     ) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.fillMaxSize().semantics { testTagsAsResourceId = true }, contentAlignment = Alignment.Center) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = Color.Transparent
             ) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier.fillMaxSize().semantics { testTag = TAG_LOADING }, contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(40.dp),
                         strokeWidth = 4.dp
@@ -270,6 +293,7 @@ fun EmptyView() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MovieItemCard(
     itemModel: MovieItemModel,
@@ -277,7 +301,7 @@ fun MovieItemCard(
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth().semantics { testTagsAsResourceId = true },
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp
         ),
@@ -291,11 +315,12 @@ fun MovieItemCard(
                     navController.navigate(MovieRoutes.MovieDetailScreen.route + "?id=${itemModel.id}")
                 }
                 .padding(16.dp)
+                .semantics { testTag = TAG_ITEM_MOVIE }
         )
         {
             Row {
                 AsyncImage(
-                    modifier = Modifier.size(72.dp, 72.dp),
+                    modifier = Modifier.size(72.dp, 72.dp).semantics { testTag = TAG_ITEM_IMAGE },
                     model = IMAGE_URL + itemModel.image,
                     contentDescription = ""
                 )
@@ -306,6 +331,7 @@ fun MovieItemCard(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
+                        modifier = Modifier.semantics { testTag = TAG_ITEM_TITLE },
                         text = stringResource(id = R.string.movie_title_item) + itemModel.movieTitle,
                         style = TextStyle(
                             fontSize = 16.sp,
@@ -315,6 +341,7 @@ fun MovieItemCard(
                     )
                     Spacer(modifier = Modifier.size(6.dp))
                     Text(
+                        modifier = Modifier.semantics { testTag = TAG_ITEM_RELEASE_DATE },
                         text = stringResource(id = R.string.movie_release_date) + itemModel.year,
                         style = TextStyle(
                             fontSize = 10.sp,
@@ -324,6 +351,7 @@ fun MovieItemCard(
                     )
                     Spacer(modifier = Modifier.size(6.dp))
                     Text(
+                        modifier = Modifier.semantics { testTag = TAG_ITEM_VOTE_AVER },
                         text = stringResource(id = R.string.movie_vote_average) + itemModel.voteAverage.toString(),
                         style = TextStyle(
                             fontSize = 10.sp,
