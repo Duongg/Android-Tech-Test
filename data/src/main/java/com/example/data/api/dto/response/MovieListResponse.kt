@@ -2,15 +2,15 @@ package com.example.data.api.dto.response
 
 import com.google.gson.annotations.SerializedName
 
-data class TrendingMovieResponse(
+data class MovieListResponse(
     @SerializedName("page"          ) var page         : Int?               = null,
-    @SerializedName("results"       ) var results      : List<Results> = arrayListOf(),
+    @SerializedName("results"       ) var results      : List<MovieItemResponse> = arrayListOf(),
     @SerializedName("total_pages"   ) var totalPages   : Int?               = null,
     @SerializedName("total_results" ) var totalResults : Int?               = null
 )
-data class Results (
+data class MovieItemResponse (
     @SerializedName("backdrop_path"     ) var backdropPath     : String?        = null,
-    @SerializedName("id"                ) var id               : Int?           = null,
+    @SerializedName("id"                ) var id               : Int,
     @SerializedName("original_title"    ) var originalTitle    : String?        = null,
     @SerializedName("overview"          ) var overview         : String?        = null,
     @SerializedName("poster_path"       ) var posterPath       : String?        = null,
@@ -25,4 +25,10 @@ data class Results (
     @SerializedName("vote_average"      ) var voteAverage      : Double?        = null,
     @SerializedName("vote_count"        ) var voteCount        : Int?           = null
 
+)
+
+data class ErrorResponse(
+    @SerializedName("status_code"    ) var statusCode    : Int?     = null,
+    @SerializedName("status_message" ) var statusMessage : String?  = null,
+    @SerializedName("success"        ) var success       : Boolean? = null
 )

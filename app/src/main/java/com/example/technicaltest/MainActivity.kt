@@ -11,6 +11,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.technicaltest.navigation.MovieRoutes
+import com.example.technicaltest.ui.movieDetail.MovieDetailView
+import com.example.technicaltest.ui.movieList.MovieListView
 import com.example.technicaltest.ui.theme.TechnicalTestTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
@@ -23,30 +31,36 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TechnicalTestTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = MovieRoutes.MovieListScreen.route
+                    ) {
+                        composable(route = MovieRoutes.MovieListScreen.route){
+                            MovieListView(navController = navController)
+                        }
+                        composable(
+                            route = MovieRoutes.MovieDetailScreen.route + "?id={id}",
+                            arguments = listOf(
+                                navArgument(
+                                    name = "id"
+                                ) {
+                                    type = NavType.IntType
+                                    defaultValue = -1
+                                },
+                            )
+                        ){
+                            val id = it.arguments?.getInt("id") ?: -1
+                            MovieDetailView(navController, id)
+                        }
+                    }
+
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TechnicalTestTheme {
-        Greeting("Android")
     }
 }
