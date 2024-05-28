@@ -36,6 +36,7 @@ abstract class MovieViewModel<STATE: MovieState>(
             is MovieException.ResponseFailed -> {MovieErrorModel("Something went wrong","Please try again")}
             is MovieException.AuthenticationFailed -> {MovieErrorModel("Authentication Failed", "Please try again")}
             is MovieException.LostInternetConnection -> {MovieErrorModel("Internet Connection Error","Please try again")}
+            is MovieException.UnknownException -> {MovieErrorModel("Something went wrong","Please try again")}
             else -> {MovieErrorModel("Something went wrong","Please try again")}
         }
         reduce {

@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -42,9 +43,10 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.technicaltest.IMAGE_URL
 import com.example.technicaltest.R
-import com.example.technicaltest.navigation.MovieRoutes
 import com.example.technicaltest.numberFormat
+import com.example.technicaltest.ui.ErrorDialog
 import com.example.technicaltest.ui.movieList.LoadingIndicator
 
 
@@ -52,10 +54,11 @@ import com.example.technicaltest.ui.movieList.LoadingIndicator
 fun MovieDetailView(navController: NavController, id: Int) {
     val viewModel: MovieDetailViewModel = hiltViewModel()
     val viewState = viewModel.viewState
-    LaunchedEffect(true){
+    LaunchedEffect(true) {
         viewModel.onUiEvent(MovieDetailViewUiEvent.OnMovieDetailLoaded(id))
     }
     LoadingIndicator(isInProgress = viewState.requestInProgress)
+    ErrorDialog(error = viewState.errorMessage)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,12 +66,19 @@ fun MovieDetailView(navController: NavController, id: Int) {
     ) {
         TopBar(navController)
         Spacer(modifier = Modifier.size(8.dp))
-        ResultView(movieDetailModel = viewState.result)
+        if (viewState.result != null) {
+            ResultView(movieDetailModel = viewState.result)
+        } else if (viewState.result == null) {
+            EmptyView()
+        } else {
+            NoResultView()
+        }
+
     }
 }
 
 @Composable
-fun TopBar(navController: NavController){
+fun TopBar(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,25 +97,34 @@ fun TopBar(navController: NavController){
         )
         Spacer(modifier = Modifier.width(80.dp))
         Text(
-            text = "Movies Details",
+            text = stringResource(id = R.string.movie_title_details),
             textAlign = TextAlign.Center,
-            style = TextStyle(color = Color(0xFFFFFFFF), fontSize = 24.sp, fontWeight = FontWeight.W600)
+            style = TextStyle(
+                color = Color(0xFFFFFFFF),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.W600
+            )
         )
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ResultView(movieDetailModel: MovieDetailModel?){
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = {movieDetailModel?.productionCompanies?.size ?: 0}, initialPageOffsetFraction = 0f)
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.White)
+fun ResultView(movieDetailModel: MovieDetailModel?) {
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { movieDetailModel?.productionCompanies?.size ?: 0 },
+        initialPageOffsetFraction = 0f
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp)
+                .height(186.dp)
                 .padding(8.dp)
         )
         {
@@ -114,8 +133,8 @@ fun ResultView(movieDetailModel: MovieDetailModel?){
                 AsyncImage(
                     modifier = Modifier
                         .size(128.dp, 128.dp),
-                    model = "https://image.tmdb.org/t/p/w500" + movieDetailModel?.posterPath,
-                    contentDescription = "Open home page",
+                    model = IMAGE_URL + movieDetailModel?.posterPath,
+                    contentDescription = "",
                 )
                 Column(
                     Modifier.fillMaxHeight(),
@@ -131,7 +150,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?){
                                 Log.d("ERROR", "Can not open home page")
                             }
                         },
-                        text = "Movie Tile: " + movieDetailModel?.originTitle,
+                        text = stringResource(id = R.string.movie_title_item) + movieDetailModel?.originTitle,
                         style = TextStyle(
                             fontSize = 18.sp,
                             color = Color(0xFF0E0D0D),
@@ -142,18 +161,29 @@ fun ResultView(movieDetailModel: MovieDetailModel?){
                     Spacer(modifier = Modifier.size(6.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Release Date: " + movieDetailModel?.releaseDate + " | ",
-                            style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D), fontWeight = FontWeight.W400)
-                        )
-                        if(movieDetailModel?.genres != null){
-                            Text(
-                                text = (movieDetailModel.genres[0].name
-                                    ?: "") + ", " + (movieDetailModel.genres[1].name ?: ""),
-                                style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D))
+                            text = stringResource(id = R.string.movie_release_date) + movieDetailModel?.releaseDate + " | ",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                color = Color(0xFF0E0D0D),
+                                fontWeight = FontWeight.W400
                             )
+                        )
+                        if (!movieDetailModel?.genres.isNullOrEmpty()) {
+                            var textValue = ""
+                            movieDetailModel?.genres?.forEach {
+                                textValue = if (movieDetailModel.genres.size > 1) {
+                                    it.name.toString() + ", "
+                                } else {
+                                    it.name.toString()
+                                }
+                                Text(
+                                    text = textValue,
+                                    style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D))
+                                )
+                            }
                         }
                     }
                     Spacer(modifier = Modifier.size(4.dp))
@@ -162,22 +192,42 @@ fun ResultView(movieDetailModel: MovieDetailModel?){
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Vote Average: " + movieDetailModel?.voteAverage.toString() + " | ",
-                            style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D),fontWeight = FontWeight.W400)
+                            text = stringResource(id = R.string.movie_vote_average) + movieDetailModel?.voteAverage.toString() + " | ",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                color = Color(0xFF0E0D0D),
+                                fontWeight = FontWeight.W400
+                            )
                         )
                         Text(
-                            text = "Status: " + movieDetailModel?.status.toString() + " | ",
-                            style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D), fontWeight = FontWeight.W400)
+                            text = stringResource(id = R.string.movie_status) + movieDetailModel?.status.toString() + " | ",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                color = Color(0xFF0E0D0D),
+                                fontWeight = FontWeight.W400
+                            )
                         )
                         Text(
-                            text = movieDetailModel?.runTime.toString() + " min",
-                            style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D), fontWeight = FontWeight.W400)
+                            text = movieDetailModel?.runTime.toString() + stringResource(id = R.string.min),
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                color = Color(0xFF0E0D0D),
+                                fontWeight = FontWeight.W400
+                            )
                         )
                     }
                     Spacer(modifier = Modifier.size(4.dp))
                     Text(
-                        text = "Budget: " + numberFormat(movieDetailModel?.budget ?: 0) + " $",
-                        style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D), fontWeight = FontWeight.W400)
+                        text = stringResource(id = R.string.movie_budget) + numberFormat(
+                            movieDetailModel?.budget ?: 0
+                        ) + stringResource(
+                            id = R.string.dollar
+                        ),
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            color = Color(0xFF0E0D0D),
+                            fontWeight = FontWeight.W400
+                        )
                     )
                     Spacer(modifier = Modifier.size(4.dp))
                     Row(
@@ -185,12 +235,20 @@ fun ResultView(movieDetailModel: MovieDetailModel?){
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Vote: " + movieDetailModel?.voteCount.toString() + " | ",
-                            style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D),fontWeight = FontWeight.W400)
+                            text = stringResource(id = R.string.movie_vote) + movieDetailModel?.voteCount.toString() + " | ",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                color = Color(0xFF0E0D0D),
+                                fontWeight = FontWeight.W400
+                            )
                         )
                         Text(
-                            text = "Popularity: " + movieDetailModel?.popularity.toString(),
-                            style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D), fontWeight = FontWeight.W400)
+                            text = stringResource(id = R.string.movie_popularity) + movieDetailModel?.popularity.toString(),
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                color = Color(0xFF0E0D0D),
+                                fontWeight = FontWeight.W400
+                            )
                         )
                     }
                     Spacer(modifier = Modifier.size(4.dp))
@@ -202,11 +260,13 @@ fun ResultView(movieDetailModel: MovieDetailModel?){
                 }
             }
         }
-        Column( modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+        ) {
             Text(
-                text = "Overview",
+                text = stringResource(id = R.string.overview),
                 style = TextStyle(
                     fontSize = 14.sp,
                     color = Color(0xFF000000),
@@ -218,15 +278,20 @@ fun ResultView(movieDetailModel: MovieDetailModel?){
                 style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D))
             )
         }
-        Column( modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
         ) {
-            if(movieDetailModel?.productCountries != null){
+            if (movieDetailModel?.productCountries != null) {
                 Text(
                     modifier = Modifier.padding(8.dp),
-                    text = "Production of Country: " + movieDetailModel.productCountries[0].name,
-                    style = TextStyle(fontSize = 14.sp, color = Color(0xFF0E0D0D), fontWeight = FontWeight.W500)
+                    text = stringResource(id = R.string.production_of_country) + movieDetailModel.productCountries[0].name,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        color = Color(0xFF0E0D0D),
+                        fontWeight = FontWeight.W500
+                    )
                 )
             }
 
@@ -236,9 +301,9 @@ fun ResultView(movieDetailModel: MovieDetailModel?){
                     .animateContentSize(),
                 state = pagerState,
                 userScrollEnabled = true,
-                ) {
-                Row (modifier = Modifier.fillMaxWidth()){
-                    movieDetailModel?.productionCompanies?.forEach{ item ->
+            ) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    movieDetailModel?.productionCompanies?.forEach { item ->
                         CardProduction(productionCompanyModel = item)
                     }
                 }
@@ -248,7 +313,7 @@ fun ResultView(movieDetailModel: MovieDetailModel?){
 }
 
 @Composable
-fun CardProduction(productionCompanyModel: ProductionCompanyModel?){
+fun CardProduction(productionCompanyModel: ProductionCompanyModel?) {
     Card(
         modifier = Modifier
             .width(128.dp)
@@ -258,27 +323,68 @@ fun CardProduction(productionCompanyModel: ProductionCompanyModel?){
             defaultElevation = 4.dp
         ),
         border = BorderStroke(1.dp, Color.LightGray)
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(16.dp)
-        ){
+        ) {
             AsyncImage(
                 modifier = Modifier.size(80.dp, 80.dp),
-                model = "https://image.tmdb.org/t/p/w500" + productionCompanyModel?.logoPath,
+                model = IMAGE_URL + productionCompanyModel?.logoPath,
                 contentDescription = ""
             )
             Spacer(modifier = Modifier.size(8.dp))
             Text(
                 text = productionCompanyModel?.name ?: "",
-                style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D), fontWeight = FontWeight.W600)
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    color = Color(0xFF0E0D0D),
+                    fontWeight = FontWeight.W600
+                )
             )
             Text(
-                text = "Country: " + productionCompanyModel?.originCountry,
-                style = TextStyle(fontSize = 12.sp, color = Color(0xFF0E0D0D), fontWeight = FontWeight.W400)
+                text = stringResource(id = R.string.movie_country) + productionCompanyModel?.originCountry,
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    color = Color(0xFF0E0D0D),
+                    fontWeight = FontWeight.W400
+                )
             )
         }
+    }
+}
+
+@Composable
+fun NoResultView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(id = R.string.no_result),
+            textAlign = TextAlign.Center,
+            style = TextStyle(
+                color = Color(0xFFE11F27),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.W500
+            )
+        )
+    }
+
+}
+
+@Composable
+fun EmptyView() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+
     }
 }

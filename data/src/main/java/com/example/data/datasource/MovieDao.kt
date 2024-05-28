@@ -15,6 +15,9 @@ interface MovieDao {
     @Query("SELECT * FROM movie_trending")
     fun getMovieTrending() : List<MovieItemEntity>
 
-//    @Insert(onConflict = OnConflictStrategy.REPLACE)
-//    fun insertMovieDetail(movieDetailEntity: MovieDetailEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertMovieDetail(movieDetailEntity: MovieDetailEntity)
+
+    @Query("SELECT * FROM movie_details where id = :id")
+    fun getMovieDetail(id: Int): MovieDetailEntity
 }

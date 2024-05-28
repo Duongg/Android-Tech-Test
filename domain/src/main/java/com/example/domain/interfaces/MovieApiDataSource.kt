@@ -14,5 +14,8 @@ interface MovieApiDataSource {
     suspend fun saveMovieTrending(movieItemEntity: MovieItemEntity)
 
     suspend fun getAllMovieTrending(): List<MovieItemEntity>
-   // suspend fun saveMovieDetail(movieDetailEntity: MovieDetailEntity)
+
+    suspend fun saveMovieDetail(movieDetailEntity: MovieDetailEntity)
+
+    suspend fun getMovieDetailFromDB(id: Int): MovieDetailEntity
 }

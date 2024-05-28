@@ -31,7 +31,11 @@ class MovieRepository @Inject constructor(
         movieApiDataSource.getAllMovieTrending()
     }
 
-//    suspend fun insertMovieDetail(movieDetailEntity: MovieDetailEntity) = async {
-//        movieApiDataSource.saveMovieDetail(movieDetailEntity)
-//    }
+    suspend fun insertMovieDetail(movieDetailEntity: MovieDetailEntity) = async {
+        movieApiDataSource.saveMovieDetail(movieDetailEntity)
+    }
+
+    suspend fun getMovieDetailFromDB(id: Int) = async {
+        movieApiDataSource.getMovieDetailFromDB(id)
+    }
 }

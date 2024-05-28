@@ -6,7 +6,7 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import java.text.DecimalFormat
 
-
+const val IMAGE_URL = "https://image.tmdb.org/t/p/w500"
 fun numberFormat(number: Int): String{
     var formatter = DecimalFormat("#,###,###")
     return formatter.format(number)

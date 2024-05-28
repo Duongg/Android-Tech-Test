@@ -1,7 +1,12 @@
 package com.example.domain.entity
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import java.io.Serializable
+
+@Entity(tableName = "movie_details")
 data class MovieDetailEntity(
-    val id: Int,
+    @PrimaryKey val id: Int,
     val backdropPath: String?,
     val budget: Int?,
     val genres: List<GenresEntity>?,
@@ -20,7 +25,7 @@ data class MovieDetailEntity(
     val title: String?,
     val voteAverage: Double?,
     val voteCount: Int?,
-)
+): Serializable
 
 data class GenresEntity(
     val idGenres: Int?,

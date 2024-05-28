@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +44,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.technicaltest.IMAGE_URL
+import com.example.technicaltest.R
 import com.example.technicaltest.navigation.MovieRoutes
 import com.example.technicaltest.ui.ErrorDialog
 import com.example.technicaltest.ui.theme.TechnicalTestTheme
@@ -55,8 +58,8 @@ fun MovieListView(navController: NavController, viewModel: MoviesListViewModel =
     ErrorDialog(
         viewState.errorMessage,
         onOKClicked = remember {
-            {viewModel.onUiEvent(MoviesListViewUiEvent.OnOKClicked())}
-    })
+            { viewModel.onUiEvent(MoviesListViewUiEvent.OnOKClicked()) }
+        })
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -84,7 +87,9 @@ fun MovieListView(navController: NavController, viewModel: MoviesListViewModel =
                 horizontalArrangement = Arrangement.Start,
             ) {
                 Text(
-                    text = if (viewState.isTrendingMovie) "Trending Movies" else "Search Results",
+                    text = if (viewState.isTrendingMovie) stringResource(id = R.string.movie_trending_header) else stringResource(
+                        id = R.string.movie_search_result_header
+                    ),
                     textAlign = TextAlign.Center,
                     style = TextStyle(
                         color = Color(0xFFE11F27),
@@ -96,11 +101,6 @@ fun MovieListView(navController: NavController, viewModel: MoviesListViewModel =
             when {
                 !viewState.results.isNullOrEmpty() -> ResultView(
                     listItem = viewState.results,
-                    onItemClicked = remember {
-                        {
-                            viewModel.onUiEvent(MoviesListViewUiEvent.OnMovieItemClicked(it))
-                        }
-                    },
                     onItemScrolled = remember {
                         {
                             viewModel.onUiEvent(MoviesListViewUiEvent.ItemScrolled(it))
@@ -108,6 +108,7 @@ fun MovieListView(navController: NavController, viewModel: MoviesListViewModel =
                     },
                     navController,
                 )
+
                 viewState.results?.isEmpty() == true -> NoResultView()
                 else -> EmptyView()
             }
@@ -116,7 +117,7 @@ fun MovieListView(navController: NavController, viewModel: MoviesListViewModel =
 }
 
 @Composable
-fun TopBar(){
+fun TopBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -125,22 +126,28 @@ fun TopBar(){
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Movies List",
+            text = stringResource(id = R.string.movie_title_list),
             textAlign = TextAlign.Center,
-            style = TextStyle(color = Color(0xFFFFFFFF), fontSize = 24.sp, fontWeight = FontWeight.W600)
+            style = TextStyle(
+                color = Color(0xFFFFFFFF),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.W600
+            )
         )
     }
 }
 
+@Suppress("UNUSED_EXPRESSION")
 @Composable
 fun SearchBox(
     viewState: MoviesListViewState,
     onSearchChanged: ((String) -> Unit)? = null,
     onSearchButtonClicked: ((String) -> Unit)? = null,
-){
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp),
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
     ) {
         OutlinedTextField(
             modifier = Modifier
@@ -148,29 +155,40 @@ fun SearchBox(
                 .weight(2f),
             textStyle = TextStyle(fontSize = 16.sp),
             value = viewState.searchInput.orEmpty(),
-            onValueChange = { onSearchChanged?.invoke(it)}
+            onValueChange = { onSearchChanged?.invoke(it) },
+            placeholder = {
+                Text(
+                    text = stringResource(id = R.string.movie_placeholder),
+                    style = TextStyle(Color(0xFF5A5A5A))
+                )
+            }
         )
         Spacer(modifier = Modifier.size(16.dp))
-        Button(modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .weight(1f),
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .weight(1f),
             onClick = {
                 onSearchButtonClicked?.invoke(viewState.searchInput.orEmpty())
             },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE11F27)))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE11F27))
+        )
         {
-            Text(text = "Search", style = TextStyle(Color(0xFFFFFFFF)))
+            Text(
+                text = stringResource(id = R.string.movie_search_btn),
+                style = TextStyle(Color(0xFFFFFFFF))
+            )
         }
     }
 }
+
 @Composable
 fun ResultView(
     listItem: List<MovieItemModel>? = null,
-    onItemClicked: ((Int) -> Unit)? = null,
     onItemScrolled: ((Int) -> Unit)? = null,
     navController: NavController,
-    ){
+) {
     val listState = rememberLazyListState()
     LazyColumn(
         modifier = Modifier
@@ -180,24 +198,28 @@ fun ResultView(
             .padding(16.dp),
         state = listState,
         verticalArrangement = Arrangement.spacedBy(16.dp)
-    ){
-        itemsIndexed(requireNotNull(listItem)){ index, item ->
-            LaunchedEffect(key1 = true){
+    ) {
+        itemsIndexed(requireNotNull(listItem)) { index, item ->
+            LaunchedEffect(key1 = true) {
                 onItemScrolled?.invoke(index)
             }
-            MovieItemCard(itemModel = item, onItemClicked = onItemClicked, navController = navController)
+            MovieItemCard(
+                itemModel = item,
+                navController = navController
+            )
         }
     }
 }
+
 @Composable
-fun NoResultView(){
+fun NoResultView() {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Opps! No Results",
+            text = stringResource(id = R.string.no_result),
             textAlign = TextAlign.Center,
             style = TextStyle(
                 color = Color(0xFFE11F27),
@@ -207,8 +229,9 @@ fun NoResultView(){
         )
     }
 }
+
 @Composable
-fun LoadingIndicator(isInProgress: Boolean){
+fun LoadingIndicator(isInProgress: Boolean) {
     if (!isInProgress) {
         return
     }
@@ -233,8 +256,9 @@ fun LoadingIndicator(isInProgress: Boolean){
 
 
 }
+
 @Composable
-fun EmptyView(){
+fun EmptyView() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -245,12 +269,12 @@ fun EmptyView(){
 
     }
 }
+
 @Composable
 fun MovieItemCard(
     itemModel: MovieItemModel,
-    onItemClicked: ((Int) -> Unit)? = null,
     navController: NavController,
-){
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -264,7 +288,6 @@ fun MovieItemCard(
                 .fillMaxSize()
                 .background(Color.White)
                 .clickable {
-                    onItemClicked?.invoke(itemModel.id)
                     navController.navigate(MovieRoutes.MovieDetailScreen.route + "?id=${itemModel.id}")
                 }
                 .padding(16.dp)
@@ -273,7 +296,7 @@ fun MovieItemCard(
             Row {
                 AsyncImage(
                     modifier = Modifier.size(72.dp, 72.dp),
-                    model = "https://image.tmdb.org/t/p/w500" + itemModel.image,
+                    model = IMAGE_URL + itemModel.image,
                     contentDescription = ""
                 )
                 Column(
@@ -283,18 +306,30 @@ fun MovieItemCard(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Movie Tile: " + itemModel.movieTitle,
-                        style = TextStyle(fontSize = 16.sp, color = Color(0xFF0E0D0D), fontWeight = FontWeight.W600)
+                        text = stringResource(id = R.string.movie_title_item) + itemModel.movieTitle,
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            color = Color(0xFF0E0D0D),
+                            fontWeight = FontWeight.W600
+                        )
                     )
                     Spacer(modifier = Modifier.size(6.dp))
                     Text(
-                        text = "Release Date: " + itemModel.year,
-                        style = TextStyle(fontSize = 10.sp, color = Color(0xFF0E0D0D),fontWeight = FontWeight.W400)
+                        text = stringResource(id = R.string.movie_release_date) + itemModel.year,
+                        style = TextStyle(
+                            fontSize = 10.sp,
+                            color = Color(0xFF0E0D0D),
+                            fontWeight = FontWeight.W400
+                        )
                     )
                     Spacer(modifier = Modifier.size(6.dp))
                     Text(
-                        text = "Vote Average: " + itemModel.voteAverage.toString(),
-                        style = TextStyle(fontSize = 10.sp, color = Color(0xFF0E0D0D), fontWeight = FontWeight.W400)
+                        text = stringResource(id = R.string.movie_vote_average) + itemModel.voteAverage.toString(),
+                        style = TextStyle(
+                            fontSize = 10.sp,
+                            color = Color(0xFF0E0D0D),
+                            fontWeight = FontWeight.W400
+                        )
                     )
                 }
             }
@@ -306,7 +341,7 @@ fun MovieItemCard(
 
 @Preview
 @Composable
-fun MovieListPreview(){
+fun MovieListPreview() {
     Surface {
         TechnicalTestTheme {
             MovieListView(navController = rememberNavController())

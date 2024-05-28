@@ -43,7 +43,11 @@ class MovieApiDataSourceImpl @Inject constructor(
     }
 
 
-//    override suspend fun saveMovieDetail(movieDetailEntity: MovieDetailEntity) {
-//        dao.insertMovieDetail(movieDetailEntity)
-//    }
+    override suspend fun saveMovieDetail(movieDetailEntity: MovieDetailEntity) {
+        dao.insertMovieDetail(movieDetailEntity)
+    }
+
+    override suspend fun getMovieDetailFromDB(id: Int): MovieDetailEntity {
+        return dao.getMovieDetail(id)
+    }
 }

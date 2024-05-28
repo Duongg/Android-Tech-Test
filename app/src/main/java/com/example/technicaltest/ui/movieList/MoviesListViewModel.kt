@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.data.datasource.MovieException
 import com.example.domain.MovieRepository
+import com.example.domain.entity.MovieDetailEntity
 import com.example.domain.entity.MovieItemEntity
 import com.example.technicaltest.core.Event
 import com.example.technicaltest.core.MovieViewModel
@@ -26,7 +27,6 @@ class MoviesListViewModel @Inject constructor(
         when(uiEvent){
             is MoviesListViewUiEvent.SearchClick -> handleSearchClick(uiEvent)
             is MoviesListViewUiEvent.SearchChanged -> handleSearchChanged(uiEvent.searchInput)
-            is MoviesListViewUiEvent.OnMovieItemClicked -> handleMovieItemClicked(uiEvent)
             is MoviesListViewUiEvent.ItemScrolled -> handleItemScroll(uiEvent.index)
             is MoviesListViewUiEvent.OnOKClicked -> handleOkClicked()
         }
@@ -47,10 +47,6 @@ class MoviesListViewModel @Inject constructor(
                 paginationJob = getMovieTrendingList()
             }
         }
-    }
-
-    private fun handleMovieItemClicked(uiEvent: MoviesListViewUiEvent.OnMovieItemClicked) {
-
     }
 
     private fun handleSearchChanged(search: String) {
@@ -106,6 +102,7 @@ class MoviesListViewModel @Inject constructor(
         }
         paginationJob = null
     }
+
     private fun getMoviesListResult(uiEvent: MoviesListViewUiEvent.SearchClick) = launch {
         // get movies list with search input is not empty
         reduce {

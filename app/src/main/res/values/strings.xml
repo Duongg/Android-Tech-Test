@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">TechnicalTest</string>
+    <string name="movie_title_list">Movies List</string>
+    <string name="movie_placeholder">Search Movie Title</string>
+    <string name="movie_search_btn">Search</string>
+    <string name="movie_trending_header">Trending Movie</string>
+    <string name="movie_search_result_header">Search Results</string>
+    <string name="movie_title_item">Movie Title: </string>
+    <string name="movie_release_date">Release Date: </string>
+    <string name="movie_vote_average">Vote Average: </string>
+    <string name="no_result">Oops! No result</string>
+    <string name="movie_title_details">Movies Details</string>
+    <string name="movie_status">Status: </string>
+    <string name="movie_budget">Budget: </string>
+    <string name="movie_vote">Vote: </string>
+    <string name="movie_popularity">Popularity: </string>
+    <string name="movie_country">Country: </string>
+    <string name="min"> min</string>
+    <string name="dollar"> $</string>
+    <string name="overview">OverView</string>
+    <string name="production_of_country">Production of Country: </string>
 </resources>
