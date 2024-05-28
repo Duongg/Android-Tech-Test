@@ -44,6 +44,15 @@ class RetrofitModule {
         tokenHeaderInterceptor: TokenHeaderInterceptor
     ): OkHttpClient {
         val httpClientBuilder = OkHttpClient.Builder()
+        httpClientBuilder.addInterceptor {chain ->
+            val url = chain
+                .request()
+                .url
+                .newBuilder()
+                .addQueryParameter("api_key", "47aa75b56464da7a186b813a50035cd4")
+                .build()
+            chain.proceed(chain.request().newBuilder().url(url).build())
+        }
         httpClientBuilder.addInterceptor(tokenHeaderInterceptor)
         httpClientBuilder.readTimeout(0, TimeUnit.SECONDS)
         httpClientBuilder.writeTimeout(0, TimeUnit.SECONDS)
